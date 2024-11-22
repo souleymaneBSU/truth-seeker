@@ -27,7 +27,13 @@ def map_labels(data, label_column):
     data[label_column] = data[label_column].map(label_mapping)
     return data, label_mapping
 
-# Map 5-label data (3-label section commented out)
+# Map 3-label data 
+train_data, train_3_label_mapping = map_labels(train_data, "3_label_majority_answer")
+test_data, _ = map_labels(test_data, "3_label_majority_answer")
+print("3-label Mapping:", train_3_label_mapping)
+
+
+# Map 5-label data 
 train_data, train_5_label_mapping = map_labels(train_data, "5_label_majority_answer")
 test_data, _ = map_labels(test_data, "5_label_majority_answer")
 print("5-label Mapping:", train_5_label_mapping)
