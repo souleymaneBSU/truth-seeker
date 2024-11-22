@@ -46,9 +46,9 @@ def classify_statement(statement, tweets, truthfulness):
     for tweet in tweets:
         sim = get_similarity(statement, tweet)
         if sim > threshold:
-            if truthfulness[i]==1:
+            if truthfulness[i]=='Agree':
                 votes['t']+=1
-            elif truthfulness[i]==0:
+            elif truthfulness[i]=='Disagree':
                 votes['f']+=1
         i=i+1
     #collect votes
@@ -61,8 +61,8 @@ for statement in data['statement'].unique():
     # Get all tweets for the current statement
     tweets_for_statement = data[data['statement'] == statement]
     tweets = tweets_for_statement['tweet'].tolist()
-    # Assuming 'majority_target' is the column that contains the truth labels (TRUE or FALSE)
-    truthfulness = [1 if label == 'TRUE' else 0 for label in tweets_for_statement['majority_target'].tolist()]
+    # Assuming 'majority_target' is the column that contains 3 label majority answer
+    truthfulness = tweets_for_statement['3_label_majority_answer'].tolist()
     
     result = classify_statement(statement, tweets, truthfulness)
     results.append((statement, result))
@@ -70,3 +70,4 @@ for statement in data['statement'].unique():
 # Step 6: Print the first 10 results
 for i, (statement, prediction) in enumerate(results[:10]):
     print(f"Statement: {statement}\nPredicted Truthfulness: {prediction}\n")
+
