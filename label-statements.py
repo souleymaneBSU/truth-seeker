@@ -6,7 +6,7 @@ import torch
 
 # Step 1: Load the dataset
 # Example loading data into a pandas DataFrame
-data = pd.read_csv('Features_For_Traditional_ML_Techniques.csv')  # Replace with the actual path to your dataset
+data = pd.read_csv('Features_For_Traditional_ML_Techniques.csv')  
 
 # Sample a subset of the data before merging
 sample_frac = 0.1 # 10% sample
@@ -15,6 +15,8 @@ data = data.sample(frac=sample_frac, random_state=42)
 # Step 2: Load pre-trained BERT model and tokenizer
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 model = BertModel.from_pretrained('bert-base-uncased')
+
+print("BERT Tokenizer and Model Loaded Successfully")
 
 def get_bert_embeddings(texts):
     """Get embeddings for a list of texts using BERT."""
