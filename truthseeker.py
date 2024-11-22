@@ -18,7 +18,7 @@ print("Loading features dataset...")
 features_df = pd.read_csv('Features_For_Traditional_ML_Techniques.csv')
 
 # Load the truth dataset
-print("Loading truth dataset...")
+#print("Loading truth dataset...")
 truth_df = pd.read_csv('Truth_Seeker_Model_Dataset.csv')
 
 # Sample a subset of the data before merging
@@ -110,13 +110,28 @@ if data.empty:
 
 # 6. Train/Test Split
 
-print("Splitting data into training and testing sets...")
-train_data, test_data = train_test_split(
-    data,
+print("Ensuring train and test datasets have different statements...")
+# Group by statement to ensure rows with the same statement are treated together
+grouped = data.groupby('statement')
+
+# Assign each group a unique group ID
+grouped_indices = {statement: i for i, statement in enumerate(grouped.groups.keys())}
+data['group_id'] = data['statement'].map(grouped_indices)
+
+# Split based on unique group IDs
+train_groups, test_groups = train_test_split(
+    list(grouped_indices.values()),
     test_size=0.2,
-    random_state=42,
-    stratify=data['multi_class_target']
+    random_state=42
 )
+
+# Create train and test datasets using the group IDs
+train_data = data[data['group_id'].isin(train_groups)]
+test_data = data[data['group_id'].isin(test_groups)]
+
+# Drop the auxiliary 'group_id' column
+train_data = train_data.drop(columns=['group_id'])
+test_data = test_data.drop(columns=['group_id'])
 
 # 7. Separate Features and Targets
 
