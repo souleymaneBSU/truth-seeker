@@ -22,7 +22,7 @@ features_df = pd.read_csv('Features_For_Traditional_ML_Techniques.csv')
 truth_df = pd.read_csv('Truth_Seeker_Model_Dataset.csv')
 
 # Sample a subset of the data before merging
-sample_frac = 0.01  # 1% sample
+sample_frac = 0.1  # 1% sample
 print(f"Sampling {sample_frac * 100}% of the features dataset...")
 features_sample = features_df.sample(frac=sample_frac, random_state=42)
 
@@ -30,7 +30,7 @@ print(f"Sampling {sample_frac * 100}% of the truth dataset...")
 truth_sample = truth_df.sample(frac=sample_frac, random_state=42)
 
 #Reduce the features in truth_sample to only necessary columns
-truth_sample = truth_sample[['statement', '5_label_majority_answer']]
+truth_sample = truth_sample[['statement', '5_label_majority_answer','3_label_majority_answer']]
 
 # Merge datasets on 'statement'
 print("Merging sampled datasets...")
@@ -61,6 +61,13 @@ data = data[data['5_label_majority_answer'] != 'NO MAJORITY']
 data = data[data['5_label_majority_answer'] != 'Unrelated']
 data = data.reset_index(drop=True)
 
+# Remove rows with missing or 'NO MAJORITY' in '5_label_majority_answer'
+print("Preprocessing data...")
+data = data.dropna(subset=['3_label_majority_answer'])
+data = data[data['3_label_majority_answer'] != 'NO MAJORITY']
+data = data[data['3_label_majority_answer'] != 'Unrelated']
+data = data.reset_index(drop=True)
+
 # Map labels to numerical classes
 label_mapping = {
     'Agree': 0,
@@ -68,14 +75,14 @@ label_mapping = {
     'Mostly Disagree': 2,
     'Disagree': 3
 }
-data['multi_class_target'] = data['5_label_majority_answer'].map(label_mapping)
 
-# Encode 'majority_target' for binary classification
-# Assuming 'majority_target' is True/False or 1/0
-if data['majority_target'].dtype == 'bool' or data['majority_target'].dtype == 'object':
-    data['BinaryNumTarget'] = data['majority_target'].astype(int)
-else:
-    data['BinaryNumTarget'] = data['majority_target']
+label_mapping_2 = {
+    'Agree': 0,
+    'Disagree': 1
+}
+data['5_class_target'] = data['5_label_majority_answer'].map(label_mapping)
+data['3_class_target'] = data['3_label_majority_answer'].map(label_mapping_2)
+
 
 # 3. Feature Selection
 
@@ -136,12 +143,12 @@ test_data = test_data.drop(columns=['group_id'])
 # 7. Separate Features and Targets
 
 X_train = train_data[feature_columns]
-y_train_binary = train_data['BinaryNumTarget']
-y_train_multi = train_data['multi_class_target']
+y_train_binary = train_data['3_class_target']
+y_train_multi = train_data['5_class_target']
 
 X_test = test_data[feature_columns]
-y_test_binary = test_data['BinaryNumTarget']
-y_test_multi = test_data['multi_class_target']
+y_test_binary = test_data['3_class_target']
+y_test_multi = test_data['5_class_target']
 
 # 8. Feature Scaling
 
