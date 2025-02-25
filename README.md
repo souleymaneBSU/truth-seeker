@@ -1,1 +1,1 @@
-# truth-seeker
+# truth-seeke
